@@ -1,0 +1,10 @@
+tasks.withType(ScalaCompile) {
+    scalaCompileOptions.with {
+        useAnt = false
+        fork = true
+	forkOptions.with {
+		memoryInitialSize = '111m'
+		memoryMaximumSize = '111m'
+	}
+    }
+}

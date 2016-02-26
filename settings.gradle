@@ -1,0 +1,5 @@
+include 'projOne'
+include 'projTwo'
+include 'projThree'
+
+rootProject.name = 'example-scala-workers'

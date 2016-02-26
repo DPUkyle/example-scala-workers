@@ -1,0 +1,14 @@
+dependencies {
+    compile project(':projTwo')
+}
+
+tasks.withType(ScalaCompile) {
+    scalaCompileOptions.with {
+        useAnt = false
+        fork = true
+        forkOptions.with {
+            memoryInitialSize = '333m'
+            memoryMaximumSize = '333m'
+        }
+    }
+}
