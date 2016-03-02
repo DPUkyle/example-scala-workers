@@ -1,3 +1,7 @@
+dependencies {
+    compile project(':compilerBootstrap')
+}
+
 tasks.withType(ScalaCompile) {
     scalaCompileOptions.with {
         useAnt = false

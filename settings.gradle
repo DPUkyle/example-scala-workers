@@ -1,3 +1,4 @@
+include 'compilerBootstrap'
 include 'projOne'
 include 'projTwo'
 include 'projThree'

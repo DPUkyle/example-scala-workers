@@ -1,0 +1,17 @@
+def maxWorkers = 2
+
+String makeString(int value) {
+    String.valueOf(value + 100).substring(1)
+}
+
+(1..maxWorkers).each {
+    String id = makeString(it)
+    String taskName = 'createWorker_' + id
+    task "${taskName}"(type: ScalaCompile) {
+        
+    }
+    project.tasks.getByName("compileScala") {
+        dependsOn += taskName
+    }
+}
+

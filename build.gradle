@@ -1,3 +1,16 @@
+import org.gradle.api.internal.tasks.compile.daemon.CompilerDaemonManager
+import sun.jvmstat.monitor.*
+
+def listJavaProcesses() {
+    MonitoredHost local = MonitoredHost.getMonitoredHost("localhost")
+    Set<Integer> localVMs = local.activeVms()
+    localVMs.each { logger.quiet(it + ':' + MonitoredVmUtil.mainClass(local.getMonitoredVm(new VmIdentifier("//" + it)), true))
+                    logger.quiet(it + ':' + MonitoredVmUtil.jvmArgs(local.getMonitoredVm(new VmIdentifier("//" + it))))
+                    logger.quiet(it + ':' + MonitoredVmUtil.jvmFlags(local.getMonitoredVm(new VmIdentifier("//" + it))))
+    }
+    
+}
+
 subprojects {
     apply plugin: 'scala'
 
@@ -10,4 +23,56 @@ subprojects {
         compile 'org.scala-lang:scala-library:2.11.7'
         testCompile 'junit:junit:4.12'
     }
+    
+//    listJavaProcesses = {
+//        MonitoredHost local = MonitoredHost.getMonitoredHost("localhost")
+//        Set<Integer> localVMs = local.activeVms()
+//        localVMs.each { vmID -> logger.quiet(vmId + ':' + MonitoredVmUtil.mainClass(local.getMonitoredVm(new VmIdentifier("//" + vmID)), true)) }
+//    }
+
+    def whatIsUp = { String beforeOrAfter, Task task -> 
+        logger.quiet "${beforeOrAfter} ${task.path}"
+        CompilerDaemonManager compilerDaemonManager = task.services.get(CompilerDaemonManager.class)
+        int allClients = compilerDaemonManager.clientsManager.allClients.size()
+        int idleClients = compilerDaemonManager.clientsManager.idleClients.size()
+        logger.quiet "${allClients} total workers, ${idleClients} are idle"
+    }
+
+    tasks.withType(AbstractCompile, {
+        doFirst {
+            whatIsUp('before', it)
+        }
+        doLast {
+            whatIsUp('after', it)
+        }
+    })
+//    tasks.withType(ScalaCompile, {
+//        doFirst {
+//            whatIsUp('before', it)
+////            logger.quiet 'before compile scala!!!'
+////            //listJavaProcesses()
+////            CompilerDaemonManager compilerDaemonManager = getServices().get(CompilerDaemonManager.class)
+////            int allClients = compilerDaemonManager.clientsManager.allClients.size()
+////            int idleClients = compilerDaemonManager.clientsManager.idleClients.size()
+////            logger.quiet "${allClients} total workers, ${idleClients} are idle"
+////            //reflectively get cDM.clientsManager, a CompilerClientsManager
+////            //reflectively sample CCM.allClients and idleClients, both are List<CompilerDaemonClient>
+//            
+//        }
+//        doLast {
+//            whatIsUp('after', it)
+////            logger.quiet 'after compile scala!!!'
+////            //listJavaProcesses()
+////            CompilerDaemonManager compilerDaemonManager = getServices().get(CompilerDaemonManager.class)
+////            int allClients = compilerDaemonManager.clientsManager.allClients.size()
+////            int idleClients = compilerDaemonManager.clientsManager.idleClients.size()
+////            logger.quiet "${allClients} total workers, ${idleClients} are idle"
+////            //reflectively get cDM.clientsManager, a CompilerClientsManager
+////            //reflectively sample CCM.allClients and idleClients, both are List<CompilerDaemonClient>
+//
+//        }
+//
+//    })
+
 }
+
